@@ -1,4 +1,6 @@
 const { Schema, model } = require("mongoose");
+const { addSchema } = require("../../schemas/contacts");
+const { updateStatusContact } = require("../../schemas/updateContacts");
 
 const contactSchema = Schema({
     name: {
@@ -17,6 +19,13 @@ const contactSchema = Schema({
     },
 })
 
+const schemas = {
+  addSchema,
+  updateStatusContact,
+};
 const Contact = model("contact", contactSchema);
 
-module.exports = Contact;
+module.exports = {
+  Contact,
+  schemas,
+};

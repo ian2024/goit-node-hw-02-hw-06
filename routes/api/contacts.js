@@ -1,52 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const Joi = require("joi");
-
+const { schemas } = require("../../models/contacts");
+const getContactById = require("../../controllers/getContactById");
+const getContact = require("../../controllers/getContact");
 const Contact = require("../../models/contacts");
-
-const createError = (status, message) => {
-  const error = new Error(message);
-  error.status = status;
-  return error;
-};
+const { createError } = require("../../helpers");
+const { isValidId } = require("../../middlewares");
 
 
-const contactsSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string(),
-  phone: Joi.string(),
-  favorite: Joi.boolean(),
-});
 
-const updateStatusContact = Joi.object({
-  favorite: Joi.boolean().required(),
-});
+router.get("/", isValidId, getContact);
 
-router.get("/", async (req, res, next) => {
-  try {
-    const result = await Contact.find();
-    res.json(result);
-  } catch (e) {
-    next(e);
-  }
-})
-
-router.get("/:contactId", async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await Contact.findById(contactId);
-    if (!result) {
-      throw createError(404, "Not Found");
-    }
-    res.json(result);
-  } catch (e) {
-    next(e);
-  }
-})
+router.get("/:contactId", isValidId, getContactById);
 
 router.post("/", async (req, res, next) => {
   try {
-    const { error } = contactsSchema.validate(req.body);
+    const { error } = schemas.contactsSchema.validate(req.body);
     if (error) {
       throw createError(422, error.message);
     }
@@ -74,7 +43,7 @@ router.delete("/:contactId", async (req, res, next) => {
 
 router.put("/:contactId", async (req, res, next) => {
   try {
-    const { error } = contactsSchema.validate(req.body);
+    const { error } = schemas.contactsSchema.validate(req.body);
     if (error) {
       throw createError(422, error.message);
     }
@@ -92,7 +61,7 @@ router.put("/:contactId", async (req, res, next) => {
 router.patch("/:contactId/favorite", async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const { error } = updateStatusContact.validate(req.body);
+    const { error } = schemas.updateStatusContact.validate(req.body);
     if (error) {
       throw createError(400, console.log({ "message": "missing field favorite" }));
     }
